@@ -7,49 +7,95 @@
 var React = require('react-native');
 var {
   AppRegistry,
+  Image,
   StyleSheet,
   Text,
-  Image,
   View,
 } = React;
 
+var REQUEST_URL = 'https://raw.githubusercontent.com/facebook/react-native/master/docs/MoviesExample.json';
+
 var AwesomeProject = React.createClass({
+
+  getInitialState: function() {
+      return {
+        movies: null,
+      };
+    },
+
+  componentDidMount: function() {
+    this.fetchData();
+  },
+
+  fetchData: function() {
+  fetch(REQUEST_URL)
+    .then((response) => response.json())
+    .then((responseData) => {
+      this.setState({
+        movies: responseData.movies,
+      });
+    })
+    .done();
+},
+
   render: function() {
+  if (!this.state.movies) {
+    return this.renderLoadingView();
+  }
+  var movie = this.state.movies[0];
+  return this.renderMovie(movie);
+  },
+
+  renderLoadingView: function() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
+        <Text>
+          Loading movies...
         </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-        <Image style={{width: 400, height: 400}}
-        source={{uri: 'https://facebook.github.io/react/img/logo_og.png'}}/>
       </View>
     );
-  }
+  },
+
+  renderMovie: function(movie) {
+    return (
+    <View style={styles.container}>
+        <Image
+      source={{uri: movie.posters.thumbnail}}
+      style={styles.thumbnail}
+      />
+      <View style={styles.rightContainer}>
+        <Text style = {styles.title}>{movie.title}</Text>
+        <Text style = {styles.year}>{movie.year}</Text>
+      </View>
+    </View>
+    );
+  },
+
 });
 
 var styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
+  rightContainer: {
+    flex: 1,
+  },
+  thumbnail: {
+    height: 53,
+    width: 81
+  },
+  title: {
     fontSize: 20,
     textAlign: 'center',
-    margin: 10,
+    margin: 8,
   },
-  instructions: {
+  year: {
     textAlign: 'center',
     color: '#333333',
-    marginBottom: 5,
   },
 });
 
